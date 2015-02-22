@@ -17,9 +17,42 @@ unix {
 # Avoid X11 header collision
 DEFINES += MESA_EGL_NO_X11_HEADERS
 
-# To test the hooks on x11 (xlib), comment the above define too
+# RaspberryPi
 EGLFS_PLATFORM_HOOKS_SOURCES += qeglfshooks_pi.cpp
-#LIBS += -lbcm_host
+EGLFS_PLATFORM_HOOKS_LIBS = -lbcm_host
+
+QMAKE_LFLAGS           += -Wl,-rpath-link,$$[QT_SYSROOT]/opt/vc/lib
+
+QMAKE_LIBDIR_OPENGL_ES2 = $$[QT_SYSROOT]/opt/vc/lib
+QMAKE_LIBDIR_EGL        = $$QMAKE_LIBDIR_OPENGL_ES2
+
+QMAKE_INCDIR_EGL        = $$[QT_SYSROOT]/opt/vc/include \
+                          $$[QT_SYSROOT]/opt/vc/include/interface/vcos/pthreads \
+                          $$[QT_SYSROOT]/opt/vc/include/interface/vmcs_host/linux
+QMAKE_INCDIR_OPENGL_ES2 = $${QMAKE_INCDIR_EGL}
+
+QMAKE_LIBS_EGL          = -lEGL -lGLESv2
+
+contains(DISTRO, squeeze) {
+    #Debian Squeeze: Legacy everything
+    QMAKE_LIBS_OPENGL_ES2   = -lGLESv2 -lEGL
+} else:contains(DISTRO, arch) {
+    #On principle: no wizardry required
+} else {
+    #This is not strictly necessary
+    DISTRO_OPTS += deb-multi-arch
+    DISTRO_OPTS += hard-float
+}
+
+QMAKE_CFLAGS           += \
+                          -marm \
+                          -mfpu=vfp \
+                          -mtune=arm1176jzf-s \
+                          -march=armv6zk \
+                          -mabi=aapcs-linux
+
+QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS
+################
 
 SOURCES =   main.cpp \
             qeglfsintegration.cpp \
@@ -39,8 +72,6 @@ HEADERS =   qeglfsintegration.h \
             qeglfscontext.h
 
 QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
-
-INCLUDEPATH += $$PWD /usr/include/interface/vmcs_host/linux
 
 !isEmpty(EGLFS_PLATFORM_HOOKS_SOURCES) {
     HEADERS += $$EGLFS_PLATFORM_HOOKS_HEADERS
