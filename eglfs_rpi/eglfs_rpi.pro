@@ -54,22 +54,18 @@ QMAKE_CFLAGS           += \
 QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS
 ################
 
-SOURCES =   main.cpp \
-            qeglfsintegration.cpp \
-            qeglfswindow.cpp \
-            qeglfsbackingstore.cpp \
-            qeglfsscreen.cpp \
-            qeglfshooks_stub.cpp \
-            qeglfscursor.cpp \
-            qeglfscontext.cpp
+SOURCES +=  $$PWD/main.cpp \
+            $$PWD/qeglfsintegration.cpp \
+            $$PWD/qeglfswindow.cpp \
+            $$PWD/qeglfsscreen.cpp \
+            $$PWD/qeglfshooks_stub.cpp \
+            $$PWD/qeglfscontext.cpp
 
-HEADERS =   qeglfsintegration.h \
-            qeglfswindow.h \
-            qeglfsbackingstore.h \
-            qeglfsscreen.h \
-            qeglfscursor.h \
-            qeglfshooks.h \
-            qeglfscontext.h
+HEADERS +=  $$PWD/qeglfsintegration.h \
+            $$PWD/qeglfswindow.h \
+            $$PWD/qeglfsscreen.h \
+            $$PWD/qeglfshooks.h \
+            $$PWD/qeglfscontext.h
 
 QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 
