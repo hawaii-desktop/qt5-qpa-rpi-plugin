@@ -12,8 +12,6 @@ unix {
     PKGCONFIG += egl glesv2
 }
 
-DESTDIR = ../../../../plugins/platforms
-
 #DEFINES += QEGL_EXTRA_DEBUG
 
 # Avoid X11 header collision
