@@ -1,57 +1,35 @@
 TARGET = eglfs_rpi
 
 PLUGIN_TYPE = platforms
-PLUGIN_CLASS_NAME = QEglFSIntegrationPlugin
+PLUGIN_CLASS_NAME = QEglFSRPiIntegrationPlugin
 
 load(qt_plugin)
 
 QT += core-private gui-private platformsupport-private
 
-unix {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += egl glesv2
-}
-
-#DEFINES += QEGL_EXTRA_DEBUG
+DEFINES += QEGL_EXTRA_DEBUG
 
 # Avoid X11 header collision
 DEFINES += MESA_EGL_NO_X11_HEADERS
 
+################
 # RaspberryPi
+################
 EGLFS_PLATFORM_HOOKS_SOURCES += qeglfshooks_pi.cpp
 EGLFS_PLATFORM_HOOKS_LIBS = -lbcm_host
 
-QMAKE_LFLAGS           += -Wl,-rpath-link,$$[QT_SYSROOT]/opt/vc/lib
+QMAKE_VC_DIR = /opt/vc
+QMAKE_LIBDIR_VC = $$QMAKE_VC_DIR/lib
+QMAKE_INCDIR_VC = $$QMAKE_VC_DIR/include \
+                  $$QMAKE_VC_DIR/include/interface/vcos/pthreads \
+                  $$QMAKE_VC_DIR/include/interface/vmcs_host/linux
 
-QMAKE_LIBDIR_OPENGL_ES2 = $$[QT_SYSROOT]/opt/vc/lib
-QMAKE_LIBDIR_EGL        = $$QMAKE_LIBDIR_OPENGL_ES2
+QMAKE_LFLAGS += -Wl,-rpath-link,$$QMAKE_LIBDIR_VC
+#QMAKE_LIBS_EGL = -lEGL -lGLESv2
+QMAKE_LIBS_EGL = -L$$QMAKE_LIBDIR_VC -lEGL -lGLESv2 -lm -lbcm_host
 
-QMAKE_INCDIR_EGL        = $$[QT_SYSROOT]/opt/vc/include \
-                          $$[QT_SYSROOT]/opt/vc/include/interface/vcos/pthreads \
-                          $$[QT_SYSROOT]/opt/vc/include/interface/vmcs_host/linux
-QMAKE_INCDIR_OPENGL_ES2 = $${QMAKE_INCDIR_EGL}
-
-QMAKE_LIBS_EGL          = -lEGL -lGLESv2
-
-contains(DISTRO, squeeze) {
-    #Debian Squeeze: Legacy everything
-    QMAKE_LIBS_OPENGL_ES2   = -lGLESv2 -lEGL
-} else:contains(DISTRO, arch) {
-    #On principle: no wizardry required
-} else {
-    #This is not strictly necessary
-    DISTRO_OPTS += deb-multi-arch
-    DISTRO_OPTS += hard-float
-}
-
-#QMAKE_CFLAGS           += \
-#                          -marm \
-#                          -mfpu=vfp \
-#                          -mtune=arm1176jzf-s \
-#                          -march=armv6zk \
-#                          -mabi=aapcs-linux
-
-QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS
+INCLUDEPATH += $$QMAKE_INCDIR_VC
+LIBS += -L$$QMAKE_LIBDIR_VC
 ################
 
 SOURCES +=  $$PWD/main.cpp \
@@ -77,11 +55,16 @@ QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
 }
 
 CONFIG += egl qpa/genericunixfontdatabase
-LIBS += -lglib-2.0 -ludev -lmtdev
-target.path += $$[QT_INSTALL_PLUGINS]/platforms
-INSTALLS += target
 
 RESOURCES += cursor.qrc
 
 OTHER_FILES += \
     eglfs_rpi.json
+
+#contains(QT_CONFIG,glib): LIBS_PRIVATE += $$QT_LIBS_GLIB
+#contains(QT_CONFIG,fontconfig): LIBS_PRIVATE += $$QMAKE_LIBS_FONTCONFIG
+#contains(QT_CONFIG,libudev): LIBS_PRIVATE += $$QMAKE_LIBS_LIBUDEV
+#contains(QT_CONFIG,mtdev): LIBS_PRIVATE += -lmtdev
+
+target.path += $$[QT_INSTALL_PLUGINS]/platforms
+INSTALLS += target
