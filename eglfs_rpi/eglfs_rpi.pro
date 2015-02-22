@@ -44,12 +44,12 @@ contains(DISTRO, squeeze) {
     DISTRO_OPTS += hard-float
 }
 
-QMAKE_CFLAGS           += \
-                          -marm \
-                          -mfpu=vfp \
-                          -mtune=arm1176jzf-s \
-                          -march=armv6zk \
-                          -mabi=aapcs-linux
+#QMAKE_CFLAGS           += \
+#                          -marm \
+#                          -mfpu=vfp \
+#                          -mtune=arm1176jzf-s \
+#                          -march=armv6zk \
+#                          -mabi=aapcs-linux
 
 QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS
 ################
